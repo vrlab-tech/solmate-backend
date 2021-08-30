@@ -140,7 +140,7 @@ def db_get_nft(user_id, session=None):
 @mk_session
 def db_get_social_info(user_id, session=None):
     try:
-        check_info = session.query(Social).with_entities(Social.url, Social.likes, Social.shares, Social.created_at, Social.updated_at).filter(
+        check_info = session.query(Social).with_entities(Social.idsocial, Social.url, Social.likes, Social.shares, Social.created_at, Social.updated_at).filter(
             Social.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
@@ -176,7 +176,7 @@ def db_get_likes(user_id,idsocial,session=None):
     else:
         likes = df.iloc[0]['likes']
         likes = likes + 1
-        update_likes = {"status": likes}
+        update_likes = {"likes": likes}
         session.query(Social).filter(Social.idsocial == idsocial).update(update_likes, synchronize_session=False)
         session.commit()
         return likes
@@ -194,7 +194,7 @@ def db_get_dislikes(user_id,idsocial,session=None):
     else:
         dislikes = df.iloc[0]['likes']
         dislikes = dislikes - 1
-        update_likes = {"status": dislikes}
+        update_likes = {"likes": dislikes}
         session.query(Social).filter(Social.idsocial == idsocial).update(update_likes, synchronize_session=False)
         session.commit()
         return dislikes
@@ -204,14 +204,14 @@ def db_get_dislikes(user_id,idsocial,session=None):
 @mk_session
 def db_get_share(user_id,idsocial,session=None):
    
-    check_info = session.query(Social).with_entities(Social.likes).filter(Social.user_id == user_id, Social.idsocial == idsocial).statement
+    check_info = session.query(Social).with_entities(Social.shares).filter(Social.user_id == user_id, Social.idsocial == idsocial).statement
     df = pd.read_sql(check_info, engine)
     if(df.empty):
         return None
     else:
         shares = df.iloc[0]['shares']
         shares = shares + 1
-        update_shares = {"status": shares}
+        update_shares = {"shares": shares}
         session.query(Social).filter(Social.idsocial == idsocial).update(update_shares, synchronize_session=False)
         session.commit()
         return shares        

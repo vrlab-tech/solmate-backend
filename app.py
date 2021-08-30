@@ -215,7 +215,7 @@ class Social(Resource):
         else:
             return jsonify(success=False, message="Oops...Error in adding social details")
 
-class Likes(Resource):
+class Like(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
@@ -224,17 +224,22 @@ class Likes(Resource):
         args = parser.parse_args()
         public_key = args['public_key']
         idsocial = args['idsocial']
-        likes = db_get_likes(public_key)
+        
+        user_id = db_get_user_from_key(public_key)
+        if(user_id == None):
+            return jsonify(success=False, message="Invalid public key for user!")
+        
+        likes = db_get_likes(user_id, idsocial)
 
         if(idsocial == None or idsocial == ""):
             return jsonify(success=False, message="No posts!")
 
         else:
-            return jsonify(likes = likes,message = "likes Added",success = True)
+            return jsonify(likes = str(likes),message = "liked",success = True)
 
 
 
-class DisLikes(Resource):
+class DisLike(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
@@ -243,13 +248,18 @@ class DisLikes(Resource):
         args = parser.parse_args()
         public_key = args['public_key']
         idsocial = args['idsocial']
-        dislikes = db_get_dislikes(public_key)
+
+        user_id = db_get_user_from_key(public_key)
+        if(user_id == None):
+            return jsonify(success=False, message="Invalid public key for user!")
+        
+        dislikes = db_get_dislikes(user_id, idsocial)
 
         if(idsocial == None or idsocial == ""):
             return jsonify(success=False, message="No posts!")
 
         else:
-            return jsonify(dislikes = dislikes,message = "likes removed",success = True)        
+            return jsonify(likes = str(dislikes),message = "disliked",success = True)        
 
 
 class Share(Resource):
@@ -261,13 +271,18 @@ class Share(Resource):
         args = parser.parse_args()
         public_key = args['public_key']
         idsocial = args['idsocial']
-        shares = db_get_dislikes(public_key)
+
+        user_id = db_get_user_from_key(public_key)
+        if(user_id == None):
+            return jsonify(success=False, message="Invalid public key for user!")
+
+        shares = db_get_share(user_id, idsocial)
 
         if(idsocial == None or idsocial == ""):
             return jsonify(success=False, message="No posts!")
 
         else:
-            return jsonify(shares = shares,message = "post shared",success = True)
+            return jsonify(shares = str(shares),message = "post shared", success = True)
 
 
 
@@ -277,9 +292,10 @@ api.add_resource(Test, '/test')
 api.add_resource(AddKey, '/addKey')
 api.add_resource(WeddingInfo, '/weddingInfo')
 api.add_resource(Nft, '/nft')
-api.add_resource(Likes,'/likes')
-api.add_resource(DisLikes,'/dislikes')
-api.add_resource(Share,'/shared')
+api.add_resource(Social,'/social')
+api.add_resource(Like,'/like')
+api.add_resource(DisLike,'/dislike')
+api.add_resource(Share,'/share')
 
 
 if __name__ == '__main__':

@@ -87,7 +87,7 @@ class Social(Base):
     user_id = Column(ForeignKey('users.idusers',
                                 ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
     url = Column(Text)
-    likes = Column(Integer)
-    shares = Column(Integer)
+    likes = Column(Integer, server_default=text("'0'"))
+    shares = Column(Integer, server_default=text("'0'"))
     created_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
