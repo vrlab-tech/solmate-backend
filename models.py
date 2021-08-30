@@ -79,3 +79,15 @@ class Nft(Base):
     datetime = Column(DateTime)
     url = Column(Text)
     created_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
+
+class Social(Base):
+    __tablename__ = "social"
+
+    idsocial = Column(Integer, primary_key=True, index=True)
+    user_id = Column(ForeignKey('users.idusers',
+                                ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
+    url = Column(Text)
+    likes = Column(Integer)
+    shares = Column(Integer)
+    created_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
