@@ -167,17 +167,119 @@ class Nft(Resource):
 
         check = db_add_nft(user_id, datetime, url)
         if(check == 1):
-            return jsonify(success=True, message="NFT Details Added successful!")
+            return jsonify(success=True, message="NFT Details Added successfully!")
         else:
             return jsonify(success=False, message="Oops...Error in adding NFT details")
 
-    
+class Social(Resource):
+    def get(self):
+        args = request.args
+        public_key = args['public_key']
+
+        if(public_key == "" or public_key is None):
+            return jsonify(success=False, message=MSG_ALL_FIELDS)
+
+        user_id = db_get_user_from_key(public_key)
+        if(user_id == None):
+            return jsonify(success=False, message="Invalid public key for user!")
+
+        data = db_get_social_info(user_id)
+        # print(data)
+        if(data):
+            data = json.loads(data)
+            print(data)
+            return jsonify(data)
+        else:
+            return None
+            
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
+        parser.add_argument('url', type=str, help="Missig url", required="true")
+        
+
+        args = parser.parse_args()
+        public_key = args['public_key']
+        url = args['url']
+
+        user_id = db_get_user_from_key(public_key)
+        if(user_id == None):
+            return jsonify(success=False, message="Invalid public key for user!")
+
+        if(url == "" or url is None):
+            return jsonify(success=False, message=MSG_ALL_FIELDS)
+
+        check = db_add_to_social(user_id, url)
+        if(check == 1):
+            return jsonify(success=True, message="Social Details Added successfully!")
+        else:
+            return jsonify(success=False, message="Oops...Error in adding social details")
+
+class Likes(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
+        parser.add_argument('idsocial', type=str, help="Missig idsocial", required="true")
+
+        args = parser.parse_args()
+        public_key = args['public_key']
+        idsocial = args['idsocial']
+        likes = db_get_likes(public_key)
+
+        if(idsocial == None or idsocial == ""):
+            return jsonify(success=False, message="No posts!")
+
+        else:
+            return jsonify(likes = likes,message = "likes Added",success = True)
+
+
+
+class DisLikes(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
+        parser.add_argument('idsocial', type=str, help="Missig idsocial", required="true")
+
+        args = parser.parse_args()
+        public_key = args['public_key']
+        idsocial = args['idsocial']
+        dislikes = db_get_dislikes(public_key)
+
+        if(idsocial == None or idsocial == ""):
+            return jsonify(success=False, message="No posts!")
+
+        else:
+            return jsonify(dislikes = dislikes,message = "likes removed",success = True)        
+
+
+class Share(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
+        parser.add_argument('idsocial', type=str, help="Missig idsocial", required="true")
+
+        args = parser.parse_args()
+        public_key = args['public_key']
+        idsocial = args['idsocial']
+        shares = db_get_dislikes(public_key)
+
+        if(idsocial == None or idsocial == ""):
+            return jsonify(success=False, message="No posts!")
+
+        else:
+            return jsonify(shares = shares,message = "post shared",success = True)
+
+
+
 # ENDPOINTS
 
 api.add_resource(Test, '/test')
 api.add_resource(AddKey, '/addKey')
 api.add_resource(WeddingInfo, '/weddingInfo')
 api.add_resource(Nft, '/nft')
+api.add_resource(Likes,'/likes')
+api.add_resource(DisLikes,'/dislikes')
+api.add_resource(Share,'/shared')
 
 
 if __name__ == '__main__':

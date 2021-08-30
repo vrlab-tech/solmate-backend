@@ -3,7 +3,7 @@ from typing import ClassVar
 import pandas as pd
 from hmac import new
 import re
-from models import Users, WeddingInfo, Nft, engine, session, OperationalError, StatementError, wraps
+from models import Social, Users, WeddingInfo, Nft, engine, session, OperationalError, StatementError, wraps
 from passlib.hash import sha256_crypt
 from datetime import datetime
 
@@ -135,3 +135,83 @@ def db_get_nft(user_id, session=None):
     except Exception as e:
         print(e)
         return None
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_social_info(user_id, session=None):
+    try:
+        check_info = session.query(Social).with_entities(Social.url, Social.likes, Social.shares, Social.created_at, Social.updated_at).filter(
+            Social.user_id == user_id).statement
+        df = pd.read_sql(check_info, engine)
+        if(df.empty):
+            return None
+        else:
+            return df.to_json(orient="records")
+    except Exception as e:
+        print(e)
+        return None
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_add_to_social(user_id, url, session=None):
+    try:
+        insert_post = Social(user_id=user_id, url=url)
+        session.add(insert_post)
+        session.commit()
+        return 1
+    except Exception as e:
+        print(e)
+        return 0
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_likes(user_id,idsocial,session=None):
+   
+    check_info = session.query(Social).with_entities(Social.likes).filter(Social.user_id == user_id, Social.idsocial == idsocial).statement
+    df = pd.read_sql(check_info, engine)
+    if(df.empty):
+        return None
+    else:
+        likes = df.iloc[0]['likes']
+        likes = likes + 1
+        update_likes = {"status": likes}
+        session.query(Social).filter(Social.idsocial == idsocial).update(update_likes, synchronize_session=False)
+        session.commit()
+        return likes
+
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_dislikes(user_id,idsocial,session=None):
+   
+    check_info = session.query(Social).with_entities(Social.likes).filter(Social.user_id == user_id, Social.idsocial == idsocial).statement
+    df = pd.read_sql(check_info, engine)
+    if(df.empty):
+        return None
+    else:
+        dislikes = df.iloc[0]['likes']
+        dislikes = dislikes - 1
+        update_likes = {"status": dislikes}
+        session.query(Social).filter(Social.idsocial == idsocial).update(update_likes, synchronize_session=False)
+        session.commit()
+        return dislikes
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_share(user_id,idsocial,session=None):
+   
+    check_info = session.query(Social).with_entities(Social.likes).filter(Social.user_id == user_id, Social.idsocial == idsocial).statement
+    df = pd.read_sql(check_info, engine)
+    if(df.empty):
+        return None
+    else:
+        shares = df.iloc[0]['shares']
+        shares = shares + 1
+        update_shares = {"status": shares}
+        session.query(Social).filter(Social.idsocial == idsocial).update(update_shares, synchronize_session=False)
+        session.commit()
+        return shares        
