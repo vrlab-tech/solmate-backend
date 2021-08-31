@@ -92,10 +92,10 @@ class WeddingInfo(Resource):
         parser.add_argument('groom_lastname', type=str, help="Missig groom_lastname", required="true")
         parser.add_argument('datetime', type=str, help="Missig datetime", required="true")
         parser.add_argument('location', type=str, help="Missig location", required="true")
-        parser.add_argument('bestman_firstname', type=str, help="Missig bestman_firstname", required="true")
-        parser.add_argument('bestman_lastname', type=str, help="Missig bestman_lastname", required="true")
-        parser.add_argument('maidofhonor_firstname', type=str, help="Missig maidofhonor_firstname", required="true")
-        parser.add_argument('maidofhonor_lastname', type=str, help="Missig maidofhonor_lastname", required="true")
+        parser.add_argument('bestman_firstname', type=str, help="Missig bestman_firstname")
+        parser.add_argument('bestman_lastname', type=str, help="Missig bestman_lastname")
+        parser.add_argument('maidofhonor_firstname', type=str, help="Missig maidofhonor_firstname")
+        parser.add_argument('maidofhonor_lastname', type=str, help="Missig maidofhonor_lastname")
 
         args = parser.parse_args()
         public_key = args['public_key']
@@ -110,7 +110,7 @@ class WeddingInfo(Resource):
         maidofhonor_firstname = args['maidofhonor_firstname']
         maidofhonor_lastname = args['maidofhonor_lastname']
 
-        if(bride_firstname == "" or bride_firstname is None or bride_lastname == "" or bride_lastname is None or groom_firstname == "" or groom_firstname is None or groom_lastname == "" or groom_lastname is None or datetime == "" or datetime is None or location == "" or location is None or bestman_firstname == "" or bestman_firstname is None or bestman_lastname == "" or bestman_lastname is None or maidofhonor_firstname == "" or maidofhonor_firstname is None or maidofhonor_lastname == "" or maidofhonor_lastname is None ):
+        if(bride_firstname == "" or bride_firstname is None or bride_lastname == "" or bride_lastname is None or groom_firstname == "" or groom_firstname is None or groom_lastname == "" or groom_lastname is None or datetime == "" or datetime is None or location == "" or location is None):
             return jsonify(success=False, message=MSG_ALL_FIELDS)
 
         user_id = db_get_user_from_key(public_key)
