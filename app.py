@@ -7,7 +7,7 @@ from flask import send_file, Flask, jsonify
 from flask_restful import Api, Resource, reqparse, request
 from db import *
 from flask_cors import CORS
-
+import werkzeug
 
 # SETUP THE ENV
 
@@ -150,22 +150,30 @@ class Nft(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
-        parser.add_argument('url', type=str, help="Missig bride_firstname", required="true")
-        parser.add_argument('datetime', type=str, help="Missig datetime", required="true")
+        parser.add_argument('image', type=str, help="Missig bride_firstname", required="true")
+        parser.add_argument('datetime', type=str, help="Missig datetime")
+        parser.add_argument('metadata_account_address', type=str, help="Missig metadata_account_address", required="true")
+        parser.add_argument('minted_token_address', type=str, help="Missig minted_token_address", required="true")
+        parser.add_argument('nft_address', type=str, help="Missig nft_address", required="true")
+        parser.add_argument('image', type=werkzeug.datastructures.FileStorage, location='files')
+
 
         args = parser.parse_args()
         public_key = args['public_key']
         datetime = args['datetime']
-        url = args['url']
+        img = args['image']
+        metadata_account_address = args['metadata_account_address']
+        minted_token_address = args['minted_token_address']
+        nft_address = args['nft_address']
 
         user_id = db_get_user_from_key(public_key)
         if(user_id == None):
             return jsonify(success=False, message="Invalid public key for user!")
 
-        if(datetime == "" or datetime is None or url == "" or url is None):
+        if(nft_address == "" or nft_address is None or img == "" or img is None or metadata_account_address == "" or metadata_account_address is None or minted_token_address == "" or minted_token_address is None ):
             return jsonify(success=False, message=MSG_ALL_FIELDS)
 
-        check = db_add_nft(user_id, datetime, url)
+        check = db_add_nft(user_id, img, metadata_account_address, minted_token_address, nft_address, datetime)
         if(check == 1):
             return jsonify(success=True, message="NFT Details Added successfully!")
         else:

@@ -107,12 +107,12 @@ def db_get_wedding_info(user_id, session=None):
 
 @retry_db((OperationalError, StatementError), n_retries=3)
 @mk_session
-def db_add_nft(user_id, datetime, url, session=None):
+def db_add_nft(user_id, img, metadata_account_address, minted_token_address, nft_address, datetime=None, session=None):
     try:
-        check_nft = session.query(Nft).filter(Nft.user_id == user_id).statement
+        check_nft = session.query(Nft).filter(Nft.user_id == user_id,nft_address=nft_address).statement
         df = pd.read_sql(check_nft, engine)
         if(df.empty):
-            insert_key = Nft(user_id=user_id, datetime=datetime, url=url)
+            insert_key = Nft(user_id=user_id, datetime=datetime, image=img, metadata_account_address=metadata_account_address,minted_token_address=minted_token_address,nft_address=nft_address)
             session.add(insert_key)
         session.commit()
         return 1
@@ -125,7 +125,7 @@ def db_add_nft(user_id, datetime, url, session=None):
 @mk_session
 def db_get_nft(user_id, session=None):
     try:
-        check_info = session.query(Nft).with_entities(Nft.datetime, Nft.url, ).filter(
+        check_info = session.query(Nft).with_entities(Nft.image, Nft.metadata_account_address, Nft.minted_token_address, Nft.nft_address, Nft.datetime, Nft.created_at).filter(
             Nft.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):

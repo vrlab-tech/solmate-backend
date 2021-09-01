@@ -77,7 +77,10 @@ class Nft(Base):
     user_id = Column(ForeignKey('users.idusers',
                                ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
     datetime = Column(DateTime)
-    url = Column(Text)
+    image = Column(BLOB)
+    metadata_account_address = Column(Text)
+    minted_token_address = Column(Text)
+    nft_address = Column(Text)
     created_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
 
 class Social(Base):
