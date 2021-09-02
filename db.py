@@ -75,12 +75,13 @@ def db_get_user_from_key(key, session=None):
 
 @retry_db((OperationalError, StatementError), n_retries=3)
 @mk_session
-def db_add_wedding_info(user_id, bride_firstname, bride_lastname, groom_firstname, groom_lastname, datetime, location, bestman_firstname, bestman_lastname, maidofhonor_firstname, maidofhonor_lastname, session=None):
+def db_add_wedding_info(user_id, account_id, trasaction_id, bride_firstname, bride_lastname, groom_firstname, groom_lastname, datetime, location, bestman_firstname, bestman_lastname, maidofhonor_firstname, maidofhonor_lastname, session=None):
     try:
         check_info = session.query(WeddingInfo).filter(WeddingInfo.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
-            insert_key = WeddingInfo(user_id=user_id, bride_firstname=bride_firstname, bride_lastname=bride_lastname,groom_firstname=groom_firstname, groom_lastname=groom_lastname, datetime=datetime, location=location, bestman_firstname=bestman_firstname, bestman_lastname=bestman_lastname, maidofhonor_firstname=maidofhonor_firstname, maidofhonor_lastname=maidofhonor_lastname)
+            insert_key = WeddingInfo(user_id=user_id, account_id=account_id, trasaction_id=trasaction_id, bride_firstname=bride_firstname, bride_lastname=bride_lastname, groom_firstname=groom_firstname, groom_lastname=groom_lastname,
+                                     datetime=datetime, location=location, bestman_firstname=bestman_firstname, bestman_lastname=bestman_lastname, maidofhonor_firstname=maidofhonor_firstname, maidofhonor_lastname=maidofhonor_lastname)
             session.add(insert_key)
         session.commit()
         return 1
@@ -93,7 +94,7 @@ def db_add_wedding_info(user_id, bride_firstname, bride_lastname, groom_firstnam
 @mk_session
 def db_get_wedding_info(user_id, session=None):
     try:
-        check_info= session.query(WeddingInfo).with_entities(WeddingInfo.bride_firstname, WeddingInfo.bride_lastname, WeddingInfo.groom_firstname, WeddingInfo.groom_firstname, WeddingInfo.datetime, WeddingInfo.location, WeddingInfo.bestman_firstname, WeddingInfo.bestman_lastname, WeddingInfo.maidofhonor_firstname, WeddingInfo.maidofhonor_lastname ).filter(
+        check_info= session.query(WeddingInfo).with_entities(WeddingInfo.account_id,WeddingInfo.trasaction_id,WeddingInfo.bride_firstname, WeddingInfo.bride_lastname, WeddingInfo.groom_firstname, WeddingInfo.groom_firstname, WeddingInfo.datetime, WeddingInfo.location, WeddingInfo.bestman_firstname, WeddingInfo.bestman_lastname, WeddingInfo.maidofhonor_firstname, WeddingInfo.maidofhonor_lastname ).filter(
             WeddingInfo.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
@@ -109,7 +110,7 @@ def db_get_wedding_info(user_id, session=None):
 @mk_session
 def db_add_nft(user_id, img, metadata_account_address, minted_token_address, nft_address, datetime=None, session=None):
     try:
-        check_nft = session.query(Nft).filter(Nft.user_id == user_id,nft_address=nft_address).statement
+        check_nft = session.query(Nft).filter(Nft.user_id == user_id, Nft.nft_address ==nft_address).statement
         df = pd.read_sql(check_nft, engine)
         if(df.empty):
             insert_key = Nft(user_id=user_id, datetime=datetime, image=img, metadata_account_address=metadata_account_address,minted_token_address=minted_token_address,nft_address=nft_address)

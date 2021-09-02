@@ -57,6 +57,8 @@ class WeddingInfo(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(ForeignKey('users.idusers',
                                ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
+    account_id = Column(Text)
+    trasaction_id = Column(Text)
     bride_firstname = Column(String(100))
     bride_lastname = Column(String(100))
     groom_firstname = Column(String(100))
