@@ -113,10 +113,11 @@ def db_add_nft(user_id, img, metadata_account_address, minted_token_address, nft
         check_nft = session.query(Nft).filter(Nft.user_id == user_id, Nft.nft_address ==nft_address).statement
         df = pd.read_sql(check_nft, engine)
         if(df.empty):
-            insert_key = Nft(user_id=user_id, datetime=datetime, image=img, metadata_account_address=metadata_account_address,minted_token_address=minted_token_address,nft_address=nft_address)
-            session.add(insert_key)
-        session.commit()
-        return 1
+            insert_nft = Nft(user_id=user_id, datetime=datetime, image=img, metadata_account_address=metadata_account_address,minted_token_address=minted_token_address,nft_address=nft_address)
+            session.add(insert_nft)
+            session.commit()
+            session.flush()
+            return insert_nft.idnft
     except Exception as e:
         print(e)
         return 0

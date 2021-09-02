@@ -252,9 +252,9 @@ class Nft(Resource):
         if(nft_address == "" or nft_address is None or metadata_account_address == "" or metadata_account_address is None or minted_token_address == "" or minted_token_address is None ):
             return jsonify(success=False, message=MSG_ALL_FIELDS)
 
-        check = db_add_nft(user_id, image, metadata_account_address, minted_token_address, nft_address, datetime)
-        if(check == 1):
-            return jsonify(success=True, message="NFT Details Added successfully!")
+        idnft = db_add_nft(user_id, image, metadata_account_address, minted_token_address, nft_address, datetime)
+        if(idnft != 0):
+            return jsonify(success=True, message="NFT Details Added successfully!", idnft=idnft)
         else:
             return jsonify(success=False, message="Oops...Error in adding NFT details")
 
