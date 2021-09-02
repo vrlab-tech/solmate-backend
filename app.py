@@ -48,7 +48,7 @@ def after_request(response):
     return response
 
 
-def uploadImage(file, name):
+def uploadImage(file):
     ACCESS_ID = 'M5JE2VQZGQENQFXKIIGT'
     SECRET_KEY = 'RWJSd3ebdcgjhkxGurSJ2EsX0wpwQ81ENYf07NJy93w'
 
@@ -58,12 +58,21 @@ def uploadImage(file, name):
                             region_name='fra1',
                             endpoint_url='https://fra1.digitaloceanspaces.com',
                             aws_access_key_id=ACCESS_ID,
-                            aws_secret_access_key=SECRET_KEY)
+                            aws_secret_access_key=SECRET_KEY,
+                            config=Config(s3={'addressing_style': 'virtual'}))
 
     # Upload a file to your Space
-    res = client.upload_file(file, 'solmate', 'images/'+name)
+    client.upload_file(file, 'solmate', 'images/'+file)
 
-    return res
+
+    # Get a presigned URL for object
+    url = client.generate_presigned_url(ClientMethod='get_object',
+                                    Params={'Bucket': 'solmate',
+                                            'Key': 'images/'+file},
+                                    ExpiresIn=300000)
+    print(url)
+
+    return url
 
 # COMMONS 
 
@@ -197,13 +206,13 @@ class Nft(Resource):
         print(type(args['image']))
         public_key = args['public_key']
         datetime = args['datetime']
-        img = args['image'].read()
+        img = args['image']
         metadata_account_address = args['metadata_account_address']
         minted_token_address = args['minted_token_address']
         nft_address = args['nft_address']
 
-        # print(img.filename)
-        # print(type(img))
+        print(img.filename)
+        print(type(img))
 
         # if user does not select file, browser also
         # submit a empty part without filename
@@ -224,14 +233,14 @@ class Nft(Resource):
         # print(type(jpg_original))
 
 
-        # filename = secure_filename(img.filename)
-        # img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filename = secure_filename(img.filename)
+        img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # fname, file_extension = os.path.splitext(
         #     'uploads/'+filename)
     
-        # # imgname = str(nft_address) + str(file_extension)
-        # image = uploadImage('uploads/'+filename, imgname)
+        # imgname = str(nft_address) + str(file_extension)
+        image = uploadImage('uploads/'+filename)
         # # print(image)
 
         # os.remove('uploads/'+filename)
@@ -243,7 +252,7 @@ class Nft(Resource):
         if(nft_address == "" or nft_address is None or metadata_account_address == "" or metadata_account_address is None or minted_token_address == "" or minted_token_address is None ):
             return jsonify(success=False, message=MSG_ALL_FIELDS)
 
-        check = db_add_nft(user_id, img, metadata_account_address, minted_token_address, nft_address, datetime)
+        check = db_add_nft(user_id, image, metadata_account_address, minted_token_address, nft_address, datetime)
         if(check == 1):
             return jsonify(success=True, message="NFT Details Added successfully!")
         else:
@@ -273,22 +282,22 @@ class Social(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('public_key', type=str, help="Missig bride_firstname", required="true")
-        parser.add_argument('url', type=str, help="Missig url", required="true")
+        parser.add_argument('idnft', type=str, help="Missig idnft", required="true")
         
 
 
         args = parser.parse_args()
         public_key = args['public_key']
-        url = args['url']
+        idnft = args['idnft']
 
         user_id = db_get_user_from_key(public_key)
         if(user_id == None):
             return jsonify(success=False, message="Invalid public key for user!")
 
-        if(url == "" or url is None):
+        if(idnft == "" or idnft is None):
             return jsonify(success=False, message=MSG_ALL_FIELDS)
 
-        check = db_add_to_social(user_id, url)
+        check = db_add_to_social(user_id, idnft)
         if(check == 1):
             return jsonify(success=True, message="Social Details Added successfully!")
         else:
@@ -366,9 +375,32 @@ class Share(Resource):
 
 class Certificate(Resource):
     def get(self):
-        html = render_template('certificate.html')
-        # html = render_template('doc2.html')
-        return render_pdf(HTML(string=html))
+        parser = reqparse.RequestParser()
+        parser.add_argument('public_key', type=str,
+                            help="Missig public_key", required="true", location="args")
+        
+        args = parser.parse_args()
+        public_key = args['public_key']
+
+        user_id = db_get_user_from_key(public_key)
+        if(user_id == None):
+            return jsonify(success=False, message="Invalid public key for user!")
+
+        cert_data = db_get_wedding_info(user_id)
+        print(cert_data)
+        if(cert_data):
+            data = json.loads(cert_data)
+            print(data)
+            
+            date = datetime.utcfromtimestamp(
+                data[0]['datetime']/1000).strftime('%Y-%m-%d %I:%M:%S%p')
+            html = render_template('certificate.html', groom_name=data[0]['groom_firstname'], bride_name=data[0]['bride_firstname'], date=date, stamp=data[0]['account_id'])
+            return render_pdf(HTML(string=html))
+        else:
+            return jsonify(success=False, message="No data found!")
+
+        
+        
 
 
 

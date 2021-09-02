@@ -94,7 +94,7 @@ def db_add_wedding_info(user_id, account_id, trasaction_id, bride_firstname, bri
 @mk_session
 def db_get_wedding_info(user_id, session=None):
     try:
-        check_info= session.query(WeddingInfo).with_entities(WeddingInfo.account_id,WeddingInfo.trasaction_id,WeddingInfo.bride_firstname, WeddingInfo.bride_lastname, WeddingInfo.groom_firstname, WeddingInfo.groom_firstname, WeddingInfo.datetime, WeddingInfo.location, WeddingInfo.bestman_firstname, WeddingInfo.bestman_lastname, WeddingInfo.maidofhonor_firstname, WeddingInfo.maidofhonor_lastname ).filter(
+        check_info= session.query(WeddingInfo).with_entities(WeddingInfo.account_id,WeddingInfo.transaction_id,WeddingInfo.bride_firstname, WeddingInfo.bride_lastname, WeddingInfo.groom_firstname, WeddingInfo.groom_firstname, WeddingInfo.datetime, WeddingInfo.location, WeddingInfo.bestman_firstname, WeddingInfo.bestman_lastname, WeddingInfo.maidofhonor_firstname, WeddingInfo.maidofhonor_lastname ).filter(
             WeddingInfo.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
@@ -126,7 +126,7 @@ def db_add_nft(user_id, img, metadata_account_address, minted_token_address, nft
 @mk_session
 def db_get_nft(user_id, session=None):
     try:
-        check_info = session.query(Nft).with_entities(Nft.image, Nft.metadata_account_address, Nft.minted_token_address, Nft.nft_address, Nft.datetime, Nft.created_at).filter(
+        check_info = session.query(Nft).with_entities(Nft.idnft, Nft.image, Nft.metadata_account_address, Nft.minted_token_address, Nft.nft_address, Nft.datetime, Nft.created_at).filter(
             Nft.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
@@ -141,8 +141,8 @@ def db_get_nft(user_id, session=None):
 @mk_session
 def db_get_social_info(user_id, session=None):
     try:
-        check_info = session.query(Social).with_entities(Social.idsocial, Social.url, Social.likes, Social.shares, Social.created_at, Social.updated_at).filter(
-            Social.user_id == user_id).statement
+        check_info = session.query(Social, Nft).with_entities(Social.idsocial, Nft.image, Nft.nft_address, Social.likes, Social.shares, Social.created_at, Social.updated_at).filter(
+            Social.user_id == user_id, Social.idnft == Nft.idnft).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
             return None
@@ -155,9 +155,9 @@ def db_get_social_info(user_id, session=None):
 
 @retry_db((OperationalError, StatementError), n_retries=3)
 @mk_session
-def db_add_to_social(user_id, url, session=None):
+def db_add_to_social(user_id, idnft, session=None):
     try:
-        insert_post = Social(user_id=user_id, url=url)
+        insert_post = Social(user_id=user_id, idnft=idnft)
         session.add(insert_post)
         session.commit()
         return 1

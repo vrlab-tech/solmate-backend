@@ -58,7 +58,7 @@ class WeddingInfo(Base):
     user_id = Column(ForeignKey('users.idusers',
                                ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
     account_id = Column(Text)
-    trasaction_id = Column(Text)
+    transaction_id = Column(Text)
     bride_firstname = Column(String(100))
     bride_lastname = Column(String(100))
     groom_firstname = Column(String(100))
@@ -79,7 +79,7 @@ class Nft(Base):
     user_id = Column(ForeignKey('users.idusers',
                                ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
     datetime = Column(DateTime)
-    image = Column(BLOB)
+    image = Column(Text)
     metadata_account_address = Column(Text)
     minted_token_address = Column(Text)
     nft_address = Column(Text)
@@ -91,7 +91,8 @@ class Social(Base):
     idsocial = Column(Integer, primary_key=True, index=True)
     user_id = Column(ForeignKey('users.idusers',
                                 ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
-    url = Column(Text)
+    idnft = Column(ForeignKey('nft.idnft',
+                              ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
     likes = Column(Integer, server_default=text("'0'"))
     shares = Column(Integer, server_default=text("'0'"))
     created_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
