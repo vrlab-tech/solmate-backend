@@ -76,12 +76,12 @@ def db_get_user_from_key(key, session=None):
 
 @retry_db((OperationalError, StatementError), n_retries=3)
 @mk_session
-def db_add_wedding_info(user_id, account_id, trasaction_id, bride_firstname, bride_lastname, groom_firstname, groom_lastname, datetime, location, bestman_firstname, bestman_lastname, maidofhonor_firstname, maidofhonor_lastname, session=None):
+def db_add_wedding_info(user_id, account_id, transaction_id, bride_firstname, bride_lastname, groom_firstname, groom_lastname, datetime, location, bestman_firstname, bestman_lastname, maidofhonor_firstname, maidofhonor_lastname, session=None):
     try:
         check_info = session.query(WeddingInfo).filter(WeddingInfo.user_id == user_id).statement
         df = pd.read_sql(check_info, engine)
         if(df.empty):
-            insert_key = WeddingInfo(user_id=user_id, account_id=account_id, trasaction_id=trasaction_id, bride_firstname=bride_firstname, bride_lastname=bride_lastname, groom_firstname=groom_firstname, groom_lastname=groom_lastname,
+            insert_key = WeddingInfo(user_id=user_id, account_id=account_id, transaction_id=transaction_id, bride_firstname=bride_firstname, bride_lastname=bride_lastname, groom_firstname=groom_firstname, groom_lastname=groom_lastname,
                                      datetime=datetime, location=location, bestman_firstname=bestman_firstname, bestman_lastname=bestman_lastname, maidofhonor_firstname=maidofhonor_firstname, maidofhonor_lastname=maidofhonor_lastname)
             session.add(insert_key)
         session.commit()

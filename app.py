@@ -141,7 +141,7 @@ class WeddingInfo(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('public_key', type=str, help="Missig public_key", required="true")
         parser.add_argument('account_id', type=str, help="Missig account_id", required="true")
-        parser.add_argument('trasaction_id', type=str, help="Missig trasaction_id", required="true")
+        parser.add_argument('transaction_id', type=str, help="Missig transaction_id", required="true")
         parser.add_argument('bride_firstname', type=str, help="Missig bride_firstname", required="true")
         parser.add_argument('bride_lastname', type=str, help="Missig bride_lastname", required="true")
         parser.add_argument('groom_firstname', type=str, help="Missig groom_firstname", required="true")
@@ -156,7 +156,7 @@ class WeddingInfo(Resource):
         args = parser.parse_args()
         public_key = args['public_key']
         account_id = args['account_id']
-        trasaction_id = args['trasaction_id']
+        transaction_id = args['transaction_id']
         bride_firstname = args['bride_firstname'] 
         bride_lastname = args['bride_lastname']
         groom_firstname = args['groom_firstname']
@@ -168,7 +168,7 @@ class WeddingInfo(Resource):
         maidofhonor_firstname = args['maidofhonor_firstname']
         maidofhonor_lastname = args['maidofhonor_lastname']
 
-        if(account_id == "" or account_id is None or trasaction_id == "" or trasaction_id is None or bride_firstname == "" or bride_firstname is None or bride_lastname == "" or bride_lastname is None or groom_firstname == "" or groom_firstname is None or groom_lastname == "" or groom_lastname is None or datetime == "" or datetime is None or location == "" or location is None):
+        if(account_id == "" or account_id is None or transaction_id == "" or transaction_id is None or bride_firstname == "" or bride_firstname is None or bride_lastname == "" or bride_lastname is None or groom_firstname == "" or groom_firstname is None or groom_lastname == "" or groom_lastname is None or datetime == "" or datetime is None or location == "" or location is None):
             return jsonify(success=False, message=MSG_ALL_FIELDS)
 
         user_id = db_get_user_from_key(public_key)
@@ -177,7 +177,8 @@ class WeddingInfo(Resource):
 
         print(user_id)
 
-        check = db_add_wedding_info(user_id, account_id, trasaction_id, bride_firstname, bride_lastname, groom_firstname, groom_lastname, datetime, location, bestman_firstname, bestman_lastname, maidofhonor_firstname, maidofhonor_lastname)
+        check = db_add_wedding_info(user_id, account_id, transaction_id, bride_firstname, bride_lastname, groom_firstname,
+                                    groom_lastname, datetime, location, bestman_firstname, bestman_lastname, maidofhonor_firstname, maidofhonor_lastname)
         if(check == 1):
             return jsonify(success=True, message="Wedding Details Added successful!")
         else:
