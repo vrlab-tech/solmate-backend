@@ -261,16 +261,19 @@ class Nft(Resource):
 class Social(Resource):
     def get(self):
         args = request.args
-        public_key = args['public_key']
+        if 'public_key' in args:
+            public_key = args['public_key']
 
-        if(public_key == "" or public_key is None):
-            return jsonify(success=False, message=MSG_ALL_FIELDS)
+            if(public_key == "" or public_key is None):
+                return jsonify(success=False, message=MSG_ALL_FIELDS)
 
-        user_id = db_get_user_from_key(public_key)
-        if(user_id == None):
-            return jsonify(success=False, message="Invalid public key for user!")
+            user_id = db_get_user_from_key(public_key)
+            if(user_id == None):
+                return jsonify(success=False, message="Invalid public key for user!")
 
-        data = db_get_social_info(user_id)
+            data = db_get_user_social_info(user_id)
+        else:
+            data = db_get_social_info()
         # print(data)
         if(data):
             data = json.loads(data)
