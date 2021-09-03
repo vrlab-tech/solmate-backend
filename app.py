@@ -101,6 +101,21 @@ class AddKey(Resource):
             return jsonify(success=False, message="Error Adding key!")
 
 
+class Dashboard(Resource):
+    def get(self):
+        res = {}
+
+        wedding_count = db_get_total_weddings_count()
+        nft_count = db_get_total_nfts_count()
+        nft_count = db_get_total_posts_count()
+
+        res['weddings'] = str(wedding_count)
+        res['nfts'] = str(nft_count)
+        res['posts'] = str(nft_count)
+
+        print(res)
+        return res
+
 class WeddingInfo(Resource):
     def get(self):
         args = request.args
@@ -418,6 +433,7 @@ api.add_resource(Like,'/like')
 api.add_resource(DisLike,'/dislike')
 api.add_resource(Share,'/share')
 api.add_resource(Certificate, '/certificate')
+api.add_resource(Dashboard, '/dashboard')
 
 
 if __name__ == '__main__':

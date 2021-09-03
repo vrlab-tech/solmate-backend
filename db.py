@@ -235,3 +235,48 @@ def db_get_share(user_id,idsocial,session=None):
         session.query(Social).filter(Social.idsocial == idsocial).update(update_shares, synchronize_session=False)
         session.commit()
         return shares        
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_total_weddings_count(session=None):
+    try:
+        weddingCount = "Select count(*) as 'total_weddings' from wedding_info"
+        df = pd.read_sql(weddingCount, engine)
+        if(not df.empty):
+            return df.at[0, 'total_weddings']
+        else:
+            return 0
+    except Exception as e:
+        print(e)
+        return 0
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_total_nfts_count(session=None):
+    try:
+        nftCount = "Select count(*) as 'total_nfts' from nft"
+        df = pd.read_sql(nftCount, engine)
+        if(not df.empty):
+            return df.at[0, 'total_nfts']
+        else:
+            return 0
+    except Exception as e:
+        print(e)
+        return 0
+
+
+@retry_db((OperationalError, StatementError), n_retries=3)
+@mk_session
+def db_get_total_posts_count(session=None):
+    try:
+        postCount = "Select count(*) as 'total_posts' from social"
+        df = pd.read_sql(postCount, engine)
+        if(not df.empty):
+            return df.at[0, 'total_posts']
+        else:
+            return 0
+    except Exception as e:
+        print(e)
+        return 0
