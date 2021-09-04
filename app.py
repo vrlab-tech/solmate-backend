@@ -49,8 +49,8 @@ def after_request(response):
 
 
 def uploadImage(file):
-    ACCESS_ID = 'M5JE2VQZGQENQFXKIIGT'
-    SECRET_KEY = 'RWJSd3ebdcgjhkxGurSJ2EsX0wpwQ81ENYf07NJy93w'
+    ACCESS_ID = os.getenv('SOLMATE_DO_ACCESS_ID')
+    SECRET_KEY = os.getenv('SOLMATE_DO_SECRET_KEY')
 
     # Initiate session
     session = boto3.session.Session()
